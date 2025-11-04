@@ -12,93 +12,6 @@ A web-based system for converting department-specific Excel schedules to standar
 - ⚠️ **Smart Warnings** - Alerts for unknown names, initials, and missing entries
 - 🎨 **Clean UI** - Professional, easy-to-use interface
 
-## File Structure
-
-```
-oncall_converter/
-├── app.py                          # Main Streamlit application
-├── department_configs/             # Backend department configurations
-│   ├── cardiology_config.py       # Cardiology schedule logic
-│   ├── radiology_config.py        # Radiology schedule logic
-│   └── template_config.py         # Template for new departments
-├── requirements.txt                # Python dependencies
-└── README.md                       # This file
-```
-
-## Deployment to Streamlit Community Cloud
-
-### Prerequisites
-
-1. GitHub account
-2. Streamlit Community Cloud account (free at [share.streamlit.io](https://share.streamlit.io))
-
-### Step-by-Step Deployment
-
-1. **Create a GitHub Repository**
-   - Go to GitHub and create a new repository (e.g., `oncall-converter`)
-   - Make it private if the employee data is sensitive
-
-2. **Upload Files**
-   - Upload all files maintaining the folder structure:
-     ```
-     - app.py
-     - requirements.txt
-     - README.md
-     - department_configs/
-       - cardiology_config.py
-       - radiology_config.py
-       - template_config.py
-     ```
-
-3. **Deploy to Streamlit Community Cloud**
-   - Go to [share.streamlit.io](https://share.streamlit.io)
-   - Click "New app"
-   - Connect your GitHub account
-   - Select your repository
-   - Set main file path: `app.py`
-   - Click "Deploy"
-
-4. **Wait for Deployment**
-   - Streamlit will install dependencies and launch your app
-   - Usually takes 2-3 minutes
-
-5. **Share Your App**
-   - You'll get a URL like: `https://your-app-name.streamlit.app`
-   - Share this with your team
-
-## Local Development
-
-To run locally:
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the app
-streamlit run app.py
-```
-
-## Adding a New Department
-
-1. **Create Configuration File**
-   - Copy `department_configs/template_config.py`
-   - Rename to `your_department_config.py`
-
-2. **Customize Configuration**
-   - Update class name (e.g., `YourDepartmentConfig`)
-   - Implement required methods:
-     - `get_department_name()`
-     - `get_file_requirements()`
-     - `get_team_abbr_map()`
-     - `validate_and_configure()`
-     - `extract_schedule_data()`
-
-3. **Add Employees**
-   - Update `EMPLOYEE_MAP` in `app.py` with your department's staff
-
-4. **Deploy**
-   - Commit and push to GitHub
-   - Streamlit will auto-redeploy
 
 ## Usage Guide
 
@@ -121,21 +34,6 @@ streamlit run app.py
    - Download CSV for system import
    - Download Excel for review/backup
 
-## Employee Map
-
-The employee mapping connects schedule identifiers (initials/names) to system usernames. Update `EMPLOYEE_MAP` in `app.py`:
-
-```python
-EMPLOYEE_MAP = {
-    'username1': {
-        'emp_initials': 'AB',
-        'emp_roles': ['1056'],
-        'emp_name': 'Dr. Name',
-        'department': 'Radiology'
-    },
-    # Add more employees...
-}
-```
 
 ## Troubleshooting
 
@@ -159,9 +57,8 @@ EMPLOYEE_MAP = {
 ## Security Notes
 
 - **No Data Storage**: Files are processed in memory only
-- **Private Deployment**: Consider making GitHub repo private
+- **Private Deployment**: GitHub repo is private
 - **Access Control**: Use Streamlit's built-in authentication if needed
-- **Employee Data**: Review `EMPLOYEE_MAP` before deploying publicly
 
 ## Support
 
@@ -172,4 +69,4 @@ For issues or questions:
 
 ## License
 
-Internal use only. Please ensure compliance with your organization's policies regarding employee data.
+Internal use only.
