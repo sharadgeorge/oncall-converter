@@ -439,7 +439,7 @@ def main():
     
     if not uploaded_files:
         st.warning("⚠️ Please upload all required files to continue")
-        st.info("Each file must be uploaded to its specific field above.")
+        #st.info("Each file must be uploaded to its specific field above.")
         return
     
     st.success(f"✅ All {len(uploaded_files)} required files uploaded!")
