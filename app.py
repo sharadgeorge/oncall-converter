@@ -3,6 +3,8 @@ Unified OnCall Schedule Converter - Streamlit Web App
 =====================================================
 A web-based system for converting department-specific Excel schedules 
 to standardized CSV/Excel import format.
+
+VERSION 2: Explicit separate upload fields for each file
 """
 
 import streamlit as st
@@ -276,6 +278,120 @@ def load_department_configs():
     return configs
 
 # ============================================================================
+# FILE UPLOAD HELPERS
+# ============================================================================
+
+def render_file_uploads_radiology():
+    """Render separate upload fields for Radiology"""
+    st.subheader("📤 Upload Required Files")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 📋 File 1: Work Schedule")
+        st.caption("Required - Upload the Work Schedule Excel file")
+        file1 = st.file_uploader(
+            "Work Schedule file (.xlsx)",
+            type=['xlsx', 'xls'],
+            key="radiology_work_schedule",
+            label_visibility="collapsed"
+        )
+        if file1:
+            st.success(f"✓ {file1.name}")
+    
+    with col2:
+        st.markdown("### 📋 File 2: OnCall Schedule")
+        st.caption("Required - Upload the OnCall Schedule Excel file")
+        file2 = st.file_uploader(
+            "OnCall Schedule file (.xlsx)",
+            type=['xlsx', 'xls'],
+            key="radiology_oncall_schedule",
+            label_visibility="collapsed"
+        )
+        if file2:
+            st.success(f"✓ {file2.name}")
+    
+    return [file1, file2] if file1 and file2 else []
+
+def render_file_uploads_cardiology():
+    """Render separate upload fields for Cardiology"""
+    st.subheader("📤 Upload Required Files")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### 📋 File 1: Rotation Schedule")
+        st.caption("Required - Teams 94 and 123")
+        file1 = st.file_uploader(
+            "Rotation Schedule file (.xlsx)",
+            type=['xlsx', 'xls'],
+            key="cardiology_rotation_schedule",
+            label_visibility="collapsed"
+        )
+        if file1:
+            st.success(f"✓ {file1.name}")
+    
+    with col2:
+        st.markdown("### 📋 File 2: Team 8 Schedule")
+        st.caption("Required - Cardiovascular team")
+        file2 = st.file_uploader(
+            "Team 8 Schedule file (.xlsx)",
+            type=['xlsx', 'xls'],
+            key="cardiology_team8_schedule",
+            label_visibility="collapsed"
+        )
+        if file2:
+            st.success(f"✓ {file2.name}")
+    
+    return [file1, file2] if file1 and file2 else []
+
+def render_file_uploads_generic(file_reqs, dept_name):
+    """Render separate upload fields for any department"""
+    st.subheader("📤 Upload Required Files")
+    
+    uploaded_files = []
+    num_files = len(file_reqs)
+    
+    if num_files == 2:
+        col1, col2 = st.columns(2)
+        cols = [col1, col2]
+    elif num_files == 3:
+        col1, col2, col3 = st.columns(3)
+        cols = [col1, col2, col3]
+    else:
+        cols = [st.container() for _ in range(num_files)]
+    
+    for i, (req, col) in enumerate(zip(file_reqs, cols), 1):
+        with col:
+            is_optional = 'optional' in req.lower()
+            req_clean = req.replace('(optional)', '').strip()
+            
+            st.markdown(f"### 📋 File {i}")
+            st.caption(f"{'Optional' if is_optional else 'Required'} - {req_clean}")
+            
+            file = st.file_uploader(
+                req_clean,
+                type=['xlsx', 'xls'],
+                key=f"{dept_name}_file_{i}",
+                label_visibility="collapsed"
+            )
+            
+            if file:
+                st.success(f"✓ {file.name}")
+                uploaded_files.append(file)
+            elif not is_optional:
+                uploaded_files.append(None)
+    
+    # Check if all required files are uploaded
+    required_count = len([r for r in file_reqs if 'optional' not in r.lower()])
+    uploaded_count = sum(1 for f in uploaded_files if f is not None)
+    
+    if uploaded_count < required_count:
+        return []
+    
+    return uploaded_files
+
+# ============================================================================
 # STREAMLIT APP
 # ============================================================================
 
@@ -310,22 +426,23 @@ def main():
     st.success(f"✓ Selected: {dept_config.get_department_name()}")
     st.markdown("---")
     
-    # File Upload
+    # File Upload - Department-specific rendering
     st.header("2. Upload Schedule Files")
-    st.info(f"**Required files for {dept_config.get_department_name()}:**")
-    for i, req in enumerate(file_reqs, 1):
-        st.markdown(f"   {i}. {req}")
     
-    uploaded_files = st.file_uploader(
-        "Upload your Excel files:",
-        type=['xlsx', 'xls'],
-        accept_multiple_files=True,
-        help="Upload files in the order specified above"
-    )
+    # Render appropriate upload interface based on department
+    if selected_dept == 'radiology':
+        uploaded_files = render_file_uploads_radiology()
+    elif selected_dept == 'cardiology':
+        uploaded_files = render_file_uploads_cardiology()
+    else:
+        uploaded_files = render_file_uploads_generic(file_reqs, selected_dept)
     
-    if not uploaded_files or len(uploaded_files) < len([r for r in file_reqs if 'optional' not in r.lower()]):
-        st.warning(f"Please upload at least {len([r for r in file_reqs if 'optional' not in r.lower()])} file(s)")
+    if not uploaded_files:
+        st.warning("⚠️ Please upload all required files to continue")
+        st.info("Each file must be uploaded to its specific field above.")
         return
+    
+    st.success(f"✅ All {len(uploaded_files)} required files uploaded!")
     
     st.markdown("---")
     
@@ -374,10 +491,11 @@ def main():
                 file_paths = []
                 
                 for uploaded_file in uploaded_files:
-                    temp_path = Path(temp_dir) / uploaded_file.name
-                    with open(temp_path, 'wb') as f:
-                        f.write(uploaded_file.getbuffer())
-                    file_paths.append(temp_path)
+                    if uploaded_file:  # Skip None values from optional files
+                        temp_path = Path(temp_dir) / uploaded_file.name
+                        with open(temp_path, 'wb') as f:
+                            f.write(uploaded_file.getbuffer())
+                        file_paths.append(temp_path)
                 
                 # Validate and configure
                 workbooks, config = dept_config.validate_and_configure(
