@@ -283,7 +283,7 @@ def load_department_configs():
 
 def render_file_uploads_radiology():
     """Render separate upload fields for Radiology"""
-    st.subheader("📤 Upload Required Files")
+    #st.subheader("📤 Upload Required Files")
     
     col1, col2 = st.columns(2)
     
@@ -315,7 +315,7 @@ def render_file_uploads_radiology():
 
 def render_file_uploads_cardiology():
     """Render separate upload fields for Cardiology"""
-    st.subheader("📤 Upload Required Files")
+    #st.subheader("📤 Upload Required Files")
     
     col1, col2 = st.columns(2)
     
