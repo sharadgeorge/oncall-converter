@@ -321,7 +321,7 @@ def render_file_uploads_cardiology():
     
     with col1:
         st.markdown("### 📋 File 1: Rotation Schedule")
-        st.caption("Required - Teams 94 and 123")
+        st.caption("Required - Cardiology Team and Interventional Cardiologist Team")
         file1 = st.file_uploader(
             "Rotation Schedule file (.xlsx)",
             type=['xlsx', 'xls'],
@@ -332,8 +332,8 @@ def render_file_uploads_cardiology():
             st.success(f"✓ {file1.name}")
     
     with col2:
-        st.markdown("### 📋 File 2: Team 8 Schedule")
-        st.caption("Required - Cardiovascular team")
+        st.markdown("### 📋 File 2: Cardiovascular Echo Tech On-Call Schedule")
+        st.caption("Required - Cardiovascular Team")
         file2 = st.file_uploader(
             "Team 8 Schedule file (.xlsx)",
             type=['xlsx', 'xls'],
